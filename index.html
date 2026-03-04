@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đề Thi Công Nghệ 9</title>
+    <title>Thi Công Nghệ 9</title>
     <style>
         :root {
             --color-bg-base: #0f172a;
@@ -47,8 +47,14 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
@@ -56,6 +62,11 @@
             color: var(--color-primary);
             margin-bottom: 30px;
             font-size: 2rem;
+        }
+
+        h2 {
+            color: var(--color-primary);
+            margin-bottom: 20px;
         }
 
         .welcome-card {
@@ -183,6 +194,16 @@
             background: rgba(56, 189, 248, 0.1);
         }
 
+        .option.correct {
+            border-color: var(--color-success);
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .option.incorrect {
+            border-color: var(--color-error);
+            background: rgba(239, 68, 68, 0.2);
+        }
+
         .option input[type="radio"] {
             margin-right: 10px;
         }
@@ -237,9 +258,17 @@
             min-width: 40px;
         }
 
-        .rank-1 { color: #ffd700; }
-        .rank-2 { color: #c0c0c0; }
-        .rank-3 { color: #cd7f32; }
+        .rank-1 {
+            color: #ffd700;
+        }
+
+        .rank-2 {
+            color: #c0c0c0;
+        }
+
+        .rank-3 {
+            color: #cd7f32;
+        }
 
         .user-name {
             flex: 1;
@@ -274,6 +303,48 @@
             padding: 20px;
             color: var(--color-text-secondary);
         }
+
+        .review-section {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .review-question {
+            background: var(--color-bg-base);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--color-bg-elevated);
+        }
+
+        .review-question.wrong {
+            border-left-color: var(--color-error);
+        }
+
+        .review-question.correct {
+            border-left-color: var(--color-success);
+        }
+
+        .review-status {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .review-status.correct {
+            color: var(--color-success);
+        }
+
+        .review-status.wrong {
+            color: var(--color-error);
+        }
+
+        .answer-label {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -281,16 +352,14 @@
         <!-- Welcome Screen -->
         <div id="welcomeScreen" class="screen active">
             <div class="welcome-card">
-                <h1>ĐỀ THI CÔNG NGHỆ 9</h1>
-                <p class="info-text">Đề cương ôn tập thi giữa học kì II</p>
-                <p class="info-text">Thời gian làm bài: 30 phút</p>
-                <p class="info-text">Tổng số câu hỏi: 40 câu</p>
-                
+                <h1>📚 THI CÔNG NGHỆ 9</h1>
+                <p class="info-text">🎯 Ôn tập thi giữa học kỳ II</p>
+                <p class="info-text">⏱️ Thời gian làm bài: 60 phút</p>
+                <p class="info-text">📝 Tổng số câu hỏi: 40 câu</p>
                 <div class="form-group">
                     <label for="studentName">Nhập tên của bạn:</label>
                     <input type="text" id="studentName" placeholder="Họ và tên..." required>
                 </div>
-                
                 <button class="btn btn-primary" onclick="startQuiz()">Bắt đầu làm bài</button>
             </div>
         </div>
@@ -298,16 +367,12 @@
         <!-- Quiz Screen -->
         <div id="quizScreen" class="screen">
             <div class="timer-bar">
-                <div>
-                    <span id="studentNameDisplay"></span>
-                </div>
-                <div class="timer" id="timer">30:00</div>
+                <div><span id="studentNameDisplay"></span></div>
+                <div class="timer" id="timer">60:00</div>
             </div>
-
             <div class="quiz-content">
-                <h1>Đề Thi Công Nghệ 9</h1>
+                <h1>Thi Công Nghệ 9</h1>
                 <div id="questionsContainer"></div>
-                
                 <div class="submit-section">
                     <button class="btn btn-primary" onclick="submitQuiz()">Nộp bài</button>
                 </div>
@@ -317,7 +382,7 @@
         <!-- Result Screen -->
         <div id="resultScreen" class="screen">
             <div class="result-card">
-                <h1>Kết quả làm bài</h1>
+                <h1>🎉 Kết quả làm bài</h1>
                 <div class="score-display" id="scoreDisplay">0/40</div>
                 <p class="info-text">Thời gian làm bài: <span id="timeTaken"></span></p>
                 
@@ -325,463 +390,65 @@
                     <h3>🏆 Bảng xếp hạng</h3>
                     <div id="leaderboardContainer" class="loading">Đang tải...</div>
                 </div>
-                
+
+                <div class="review-section" id="reviewSection"></div>
+
                 <button class="btn btn-secondary" onclick="location.reload()">Làm lại</button>
             </div>
         </div>
     </div>
 
     <script>
-        const FIREBASE_URL = 'https://burnt-hand-default-rtdb.firebaseio.com';
+        const FIREBASE_URL = atob("aHR0cHM6Ly9idXJudC1oYW5kLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ==");
         
         const questions = [
-            {
-                id: 1,
-                question: "Khung cơ cấu hệ thống giáo dục quốc dân Việt Nam bao gồm:",
-                options: [
-                    "A. giáo dục chính quy, giáo dục nghề nghiệp.",
-                    "B. giáo dục chính quy, giáo dục phổ thông.",
-                    "C. giáo dục dân lập, giáo dục phổ thông.",
-                    "D. giáo dục chính quy, giáo dục thường xuyên."
-                ],
-                correct: 3
-            },
-            {
-                id: 2,
-                question: "Ý nghĩa của việc chọn đúng nghề nghiệp của mỗi người đối với xã hội?",
-                options: [
-                    "A. Chọn đúng nghề để được có cơ hội nhanh chóng có được cơ hội việc làm.",
-                    "B. Có nghề nghiệp ổn định là cơ hội để cá nhân xây dựng được kế hoạch gia đình tương lai một cách chắc chắn.",
-                    "C. Chọn nghề đúng sở thích, cá tính là nền tảng để cá nhân có được sự hài lòng, hạnh phúc với công việc đã chọn.",
-                    "D. Chọn đúng nghề, học đúng ngành là làm đúng chuyên môn, tạo giá trị cho xã hội, có hiệu tình trang thái nghề hiệp."
-                ],
-                correct: 3
-            },
-            {
-                id: 3,
-                question: "Điều từ nào trong Phần luồng trong giáo dục là Biện pháp tổ chức hoạt động giáo dục trên cơ sở hiện (1) ... trong giáo dục, tạo (2) ... để học sinh tốt nghiệp (3) ..., (4) ... tiếp tục học ở cấp học, trình độ cao hơn hoặc theo học giáo dục nghề nghiệp hoặc tham gia lao động phù hợp với năng lực.",
-                options: [
-                    "A. (1) hướng nghiệp, (2) điều kiện, (3) tiểu học, (4) trung học cơ sở.",
-                    "B. (1) đào tạo, (2) điều kiện, (3) trung học phổ thông, (4) đại học.",
-                    "C. (1) đào tạo, (2) điều kiện, (3) trung học cơ sở, (4) trung học phổ thông.",
-                    "D. (1) hướng nghiệp, (2) điều kiện, (3) trung học cơ sở, (4) trung học phổ thông."
-                ],
-                correct: 3
-            },
-            {
-                id: 4,
-                question: "Công việc của thợ cơ khí là:",
-                options: [
-                    "A. chịu trách nhiệm lên kế hoạch triển khai các hệ thống mới, xử lý lỗi phần mềm và nâng cao hiệu suất của toàn bộ hệ thống.",
-                    "B. nghiên cứu, vận hành, theo dõi các hệ thống tự động, đây chuyên sản xuất tự động, phát hiện và sửa chữa cũng như khắc phục những sai sót của hệ thống một cách kịp thời.",
-                    "C. phụ trách nghiên cứu, phân tích, thiết kế, triển khai xây dựng và hoàn thiện những vấn đề liên quan đến hệ thống điện.",
-                    "D. lắp đặt, chế tạo, vận hành máy móc hoặc sửa chữa, phục hồi, thay thế các bộ phận hư hỏng trên máy móc."
-                ],
-                correct: 3
-            },
-            {
-                id: 5,
-                question: "Tìm kiếm các thông tin liên quan đến thị trường lao động các ngành nghề kĩ thuật, công nghệ bằng những công cụ hỗ trợ nào?",
-                options: [
-                    "A. Từ người thân, thầy cô.",
-                    "B. Google, Bing, ChatGPT.",
-                    "C. Sách, báo, truyện, trò chơi.",
-                    "D. Ngoại khóa ở trường."
-                ],
-                correct: 1
-            },
-            {
-                id: 6,
-                question: "Trình tự các bước xác định thông tin về thị trường lao động trong lĩnh vực kĩ thuật, công nghệ là?",
-                options: [
-                    "A. Tiến hành tìm kiếm→Xác định mục tiêu tìm kiếm→Xác định nguồn thông tin→Xác định công cụ tìm kiếm.",
-                    "B. Xác định mục tiêu tìm kiếm→Xác định nguồn thông tin→Xác định công cụ tìm kiếm→Tiến hành tìm kiếm.",
-                    "C. Xác định nguồn thông tin→Xác định mục tiêu tìm kiếm→Xác định công cụ tìm kiếm→Tiến hành tìm kiếm.",
-                    "D. Xác định công cụ tìm kiếm→Xác định mục tiêu tìm kiếm→Xác định nguồn thông tin→Tiến hành tìm kiếm."
-                ],
-                correct: 1
-            },
-            {
-                id: 7,
-                question: "Trình tự các bước trong quy trình lựa chọn nghề là",
-                options: [
-                    "A. Đánh giá bản thân→Ra quyết định→Tìm hiểu thị trường lao động.",
-                    "B. Ra quyết định→Tìm hiểu thị trường lao động.",
-                    "C. Đánh giá bản thân →Tìm hiểu thị trường lao động →Ra quyết định.",
-                    "D. Tìm hiểu thị trường lao động→Ra quyết định."
-                ],
-                correct: 2
-            },
-            {
-                id: 8,
-                question: "Giáo dục phổ thông có hai thời điểm phân luồng là",
-                options: [
-                    "A. sau tốt nghiệp trung học phổ thông và tốt nghiệp đại học.",
-                    "B. sau tốt nghiệp trung học cơ sở và tốt nghiệp trung học phổ thông.",
-                    "C. sau tốt nghiệp tiểu học và tốt nghiệp trung học cơ sở và tốt nghiệp",
-                    "D. sau tốt nghiệp tiểu học và tốt nghiệp trung học phổ thông."
-                ],
-                correct: 1
-            },
-            {
-                id: 9,
-                question: "Phương án khả thi khi muốn theo học nghề sửa chữa, lắp ráp máy tính sau khi tốt nghiệp trung học cơ sở là",
-                options: [
-                    "A. học ngành kĩ thuật sửa chữa, lắp ráp máy tính tại các cơ sở giáo dục nghề nghiệp đào tạo trình độ cao đẳng.",
-                    "B. học ngành kĩ thuật sửa chữa, lắp ráp máy tính tại các cơ sở giáo dục nghề nghiệp có đào tạo trình độ sơ cấp và trung cấp.",
-                    "C. học ngành kĩ thuật sửa chữa, lắp ráp máy tính trong các trường trung học phổ thông.",
-                    "D. học ngành kĩ thuật sửa chữa, lắp ráp máy tính tại các trường cao đẳng có đào tạo ngành nghề"
-                ],
-                correct: 1
-            },
-            {
-                id: 10,
-                question: "Yếu cầu về phẩm chất của thợ hàn là?",
-                options: [
-                    "A. Trình độ chuyên môn.",
-                    "B. Tự nghiên cứu.",
-                    "C. Cần thận.",
-                    "D. Nhanh nhẹn."
-                ],
-                correct: 2
-            },
-            {
-                id: 11,
-                question: "Tầm quan trọng của nghề nghiệp đối với con người là",
-                options: [
-                    "A. tạo ra sản phẩm tinh thần đáp ứng nhu cầu ngày càng cao của xã hội.",
-                    "B. góp phần thúc đẩy phát triển kinh tế, đem lại phồn vinh cho xã hội.",
-                    "C. tạo môi trường để chúng ta phát triển nhân cách, phát huy năng lực, sở trường.",
-                    "D. Định hướng và phát triển chương trình đào tạo đáp ứng được yêu cầu của xã hội."
-                ],
-                correct: 2
-            },
-            {
-                id: 12,
-                question: "Ý nghĩa của việc chọn nghề nghiệp phù hợp với tính cách nhân cách là",
-                options: [
-                    "A. dễ thích ứng với các yêu cầu công việc và hoàn thành tốt các nhiệm vụ được giao.",
-                    "B. có cái nhìn tổng quan về tính cách và sở thích để chọn nghề nghiệp phù hợp.",
-                    "C. lập kế hoạch rèn luyện phù hợp với bản thân.",
-                    "D. đánh giá được năng lực bản thân phù hợp với nghề nghiệp lựa chọn."
-                ],
-                correct: 0
-            },
-            {
-                id: 13,
-                question: "Sau khi tốt nghiệp trung học cơ sở, học sinh có thể lựa chọn cơ sở giáo dục thường xuyên để",
-                options: [
-                    "A. vừa học chương trình giáo dục phổ thông, vừa học nghề.",
-                    "B. vừa học chương trình giáo dục phổ thông, vừa đi làm.",
-                    "C. học chương trình giáo dục phổ thông như các bạn học công lập.",
-                    "D. học chương trình nghề là chủ yếu."
-                ],
-                correct: 0
-            },
-            {
-                id: 14,
-                question: "Nghề nào thuộc lĩnh vực kĩ thuật, công nghệ?",
-                options: [
-                    "A. Nhân viên tư vấn.",
-                    "B. Chuyên viên trang điểm.",
-                    "C. Chuyên viên marketing.",
-                    "D. Thợ cơ khí."
-                ],
-                correct: 3
-            },
-            {
-                id: 15,
-                question: "Giáo dục mầm giáo có độ tuổi từ",
-                options: [
-                    "A. 3 đến 56 tháng tuổi.",
-                    "B. 13 tuổi trở lên.",
-                    "C. 6 đến 12 tuổi.",
-                    "D. 3 đến 5 tuổi."
-                ],
-                correct: 3
-            },
-            {
-                id: 16,
-                question: "Yêu cầu về năng lực của lập trình viên là gì?",
-                options: [
-                    "A. Có ý thức phần dầu, tư dưỡng đạo đức.",
-                    "B. Có thể phân phối các loại máy cho các xưởng.",
-                    "C. Hiểu biết và vận dụng thành thạo ngôn ngữ lập trình.",
-                    "D. Môi trường làm việc năng động, thoải mái."
-                ],
-                correct: 2
-            },
-            {
-                id: 17,
-                question: "Giáo dục phổ thông bao gồm",
-                options: [
-                    "A. giáo dục tiểu học, giáo dục trung học cơ sở và giáo dục trung học phổ thông.",
-                    "B. trình độ sơ cấp, trình độ trung cấp và trình độ cao đẳng.",
-                    "C. nhà trẻ và mẫu giáo.",
-                    "D. mầu giáo, tiểu học, giáo dục trung học cơ sở và giáo dục trung học phổ thông."
-                ],
-                correct: 0
-            },
-            {
-                id: 18,
-                question: "Để đưa ra quyết định chọn nghề tương lai cho phù hợp, một học sinh cần phải làm gì?",
-                options: [
-                    "A. Lựa chọn công việc phù hợp thỏa mãn nhu cầu tuyển dụng lao động của xã hội.",
-                    "B. Có kế hoạch học tập, tìm đường, rèn luyện để chuẩn bị cho việc tham gia vào hoạt động nghề nghiệp.",
-                    "C. Cần cứ lựa chọn nghề phù hợp với sở thích với bản thân.",
-                    "D. Học ngành kĩ thuật sửa chữa, lắp ráp máy tính tại các cơ sở giáo dục nghề nghiệp đào tạo trình độ cao đẳng."
-                ],
-                correct: 1
-            },
-            {
-                id: 19,
-                question: "Ngành nghề nào sau đây không thuộc lĩnh vực kĩ thuật – công nghệ?",
-                options: [
-                    "A. Điện-điện tử",
-                    "B. cơ khí",
-                    "C. Địa lý",
-                    "D. chăm sóc sắc đẹp"
-                ],
-                correct: 3
-            },
-            {
-                id: 20,
-                question: "Công việc nào phù hợp với sở thích sử dụng máy móc, làm công việc sử dụng thao tác tay chân?",
-                options: [
-                    "A. Cơ khí.",
-                    "B. Nhân viên tư vấn.",
-                    "C. Ngân hàng.",
-                    "D. Nghiên cứu khoa học."
-                ],
-                correct: 0
-            },
-            {
-                id: 21,
-                question: "Chọn phát biểu sai về đặc điểm môi trường làm việc của các ngành nghề trong lĩnh vực kĩ thuật, công nghệ?",
-                options: [
-                    "A. Môi trường làm việc năng động, hiện đại, luôn biến đổi và đầy thử thách.",
-                    "B. Vận dụng các nguyên lí vật lí, kĩ thuật, khoa học công nghệ cao.",
-                    "C. Đòi với lĩnh vực kĩ thuật, môi trường làm việc tiềm ẩn nguy cơ tai nan cao.",
-                    "D. Tiếp xúc nhiều với các thiết bị, công nghệ hiện đại, áp lực công việc lớn."
-                ],
-                correct: 1
-            },
-            {
-                id: 22,
-                question: "Phẩm chất trong các ngành nghề kĩ thuật, công nghệ là",
-                options: [
-                    "A. làm việc cả nhân độc lập.",
-                    "B. trình độ chuyên môn.",
-                    "C. tự học, tự nghiên cứu.",
-                    "D. cẩn cư, chăm chỉ, trung thực."
-                ],
-                correct: 3
-            },
-            {
-                id: 23,
-                question: "Các trình độ đào tạo của nghề nghiệp thuộc lĩnh vực kĩ thuật, công nghệ là:",
-                options: [
-                    "A. sơ cấp, trung cấp, cao đẳng, đại học.",
-                    "B. sơ cấp, trung cấp, cao đẳng, đại học, thạc sĩ và tiến sĩ.",
-                    "C. trung cấp, cao đẳng, đại học, thạc sĩ và tiến sĩ.",
-                    "D. sơ cấp, trung cấp, thạc sĩ và tiến sĩ."
-                ],
-                correct: 1
-            },
-            {
-                id: 24,
-                question: "Những thông tin mà thị trường lao động cung cấp có vai trò gì đối với các cơ sở đào tạo?",
-                options: [
-                    "A. Thỏa mãn nhu cầu tuyển dụng người lao động của các công ty, xưởng.",
-                    "B. Định hướng chương trình đào tạo đáp ứng được yêu cầu của xã hội.",
-                    "C. Đào tạo ra thế hệ người lao động có trình độ chuyên môn, năng lực nghiệp vụ tốt.",
-                    "D. Định hướng và phát triển chương trình đào tạo đáp ứng được yêu cầu của xã hội."
-                ],
-                correct: 3
-            },
-            {
-                id: 25,
-                question: "Nghề nghiệp là gì?",
-                options: [
-                    "A. Nghề nghiệp là một công việc mang lại thu nhập không ổn định.",
-                    "B. Nghề nghiệp là tập hợp các công việc gắn bó một thời gian với cả nhân.",
-                    "C. Nghề nghiệp là một việc làm có tính chất không ổn định.",
-                    "D. Nghề nghiệp là tập hợp các công việc được xã hội công nhận."
-                ],
-                correct: 3
-            },
-            {
-                id: 26,
-                question: "Nội dung nào dưới đây không đúng khi nói về vai trò của việc phân luồng trong hệ thống giáo dục quốc dân?",
-                options: [
-                    "A. Góp phần đào tạo nhân lực lao động làm việc, là tiền đề phát triển kinh tế đất nước.",
-                    "B. Tạo điều kiện cho học sinh lựa chọn nhiều trung học có sở, trung học phổ thống tiếp tục học ở cấp học, trình độ cao hơn.",
-                    "C. Góp phần điều tiết cơ cấu ngành nghề của lực lượng lao động phù hợp với yêu cầu phát triển của đất nước.",
-                    "D. Tham gia lao động phù hợp với năng lực, điều kiện cụ thể của cá nhân và nhu cầu xã hội."
-                ],
-                correct: 1
-            },
-            {
-                id: 27,
-                question: "Giáo dục thường xuyên dành cho những đối tượng nào?",
-                options: [
-                    "A. Người ở lứa tuổi từ lớp 10 đến lớp 12, có thể học tập, phát triển năng lực chuyên môn, tự tạo việc làm hoặc chuyển đổi ngành, nghề phù hợp.",
-                    "B. Người ở các lứa tuổi, có trình độ, có thể học tập, phát triển năng lực chuyên môn, tự tạo việc làm hoặc chuyển đổi ngành, nghề phù hợp.",
-                    "C. Người ở lứa tuổi từ lớp 6 đến lớp 9, có thể học tập, phát triển năng lực chuyên môn, tự tạo việc làm hoặc chuyển đổi ngành, nghề phù hợp.",
-                    "D. Người ở lứa tuổi từ năm 1 đến năm 2 đại học, có thể học tập, phát triển năng lực chuyên môn, tự tạo việc làm hoặc chuyển đổi ngành, nghề phù hợp."
-                ],
-                correct: 1
-            },
-            {
-                id: 28,
-                question: "Môi trường làm việc của lập trình viên có đặc điểm gì?",
-                options: [
-                    "A. Cần biết ít nhất một ngôn ngữ để cập nhật xu hướng mới trên thế giới và giao tiếp trí thức nhân loại.",
-                    "B. Làm việc với nhiều máy móc, thiết bị hiện đại, luôn được tiếp cận với các thành tựu mới nhất của khoa học công nghệ.",
-                    "C. Môi trường làm việc khép kín, ít có sự giao tiếp.",
-                    "D. Có thể là các nhà máy, phân xưởng, nhà xưởng tự nhân."
-                ],
-                correct: 1
-            },
-            {
-                id: 29,
-                question: "Chọn đáp án sai về ý nghĩa của việc chọn đúng nghề nghiệp đối với cá nhân?",
-                options: [
-                    "A. Tăng nguy cơ mất an toàn lao động",
-                    "B. Tạo nguồn thu nhập đảm bảo nuôi sống bản thân",
-                    "C. Tạo nguồn thu nhập đảm bảo nuôi sống gia đình",
-                    "D. Giúp nhanh chóng thích ứng và phát triển nghề nghiệp"
-                ],
-                correct: 0
-            },
-            {
-                id: 30,
-                question: "Trình độ tiến sĩ được đào tạo trong thời gian bao lâu?",
-                options: [
-                    "A. 1-2 năm",
-                    "B. 3-4 năm",
-                    "C. 2-3 năm",
-                    "D. 4-5 năm"
-                ],
-                correct: 1
-            },
-            {
-                id: 31,
-                question: "Trẻ em trong độ tuổi bao nhiêu có thể tham gia lớp nhà trẻ?",
-                options: [
-                    "A. 02 – 12 Tháng",
-                    "B. 03 – 24 Tháng",
-                    "C. 03 = 36 Tháng",
-                    "D. 04 – 36 TháNG"
-                ],
-                correct: 2
-            },
-            {
-                id: 32,
-                question: "Nơi làm việc của thợ điện là ở đâu?",
-                options: [
-                    "A. Các văn phòng nghiên cứu",
-                    "B. Các khu công nghiệp, khu dân cư...",
-                    "C. Các lớp giảng dạy về điện",
-                    "D. Tất cả đáp án trên"
-                ],
-                correct: 1
-            },
-            {
-                id: 33,
-                question: "Chọn đáp án sai về nguyên nhân gây ra mất an toàn tại nơi làm việc của người thợ cơ khí:",
-                options: [
-                    "A. Thiếu đồ bảo hộ lao động",
-                    "B. Không nắm kĩ các hướng dẫn sử dụng các loại máy móc",
-                    "C. Không đọc hiểu các biển báo cảnh báo an toàn tại nơi làm việc",
-                    "D. Do máy móc hiện đại"
-                ],
-                correct: 3
-            },
-            {
-                id: 34,
-                question: "Đặc điểm của nghề nghiệp?",
-                options: [
-                    "A. Có tính chất ổn định",
-                    "B. Gắn bó lâu dài",
-                    "C. tạo môi trường để chúng ta phát triển nhân cách, phát huy năng lực, sở trường.",
-                    "D. Có tính chất ổn định, gắn bó lâu dài, đóng góp cho cộng đồng"
-                ],
-                correct: 3
-            },
-            {
-                id: 35,
-                question: "Thị trường lao động là gì?",
-                options: [
-                    "A. Thị trường trao đổi hàng hóa \"sức lao động\" giữa người lao động và người sử dụng lao động.",
-                    "B. Thị trường trao đổi hàng hóa và dịch vụ giữa các doanh nghiệp.",
-                    "C. Thị trường trao đổi công việc giữa người lao động và chính phủ.",
-                    "D. Thị trường trao đổi hàng hóa giữa các nhà sản xuất."
-                ],
-                correct: 0
-            },
-            {
-                id: 36,
-                question: "Người lao động trong thị trường lao động là:",
-                options: [
-                    "A. người chỉ đạo và quản lí công việc.",
-                    "B. người quản lí thị trường lao động.",
-                    "C. người cung cấp sức lao động cho người sử dụng lao động.",
-                    "D. người không tham gia vào quá trình sản xuất."
-                ],
-                correct: 2
-            },
-            {
-                id: 37,
-                question: "Yếu tố nào dưới đây ảnh hưởng đến thị trường lao động?",
-                options: [
-                    "A. Sự thay đổi về cơ sở hạ tầng.",
-                    "B. Nhu cầu lao động.",
-                    "C. Sự thay đổi văn hóa xã hội.",
-                    "D. Sự tăng trưởng dân số."
-                ],
-                correct: 1
-            },
-            {
-                id: 38,
-                question: "Người sử dụng lao động là:",
-                options: [
-                    "A. người chịu sự quản lí, giám sát của người lao động.",
-                    "B. doanh nghiệp, cơ quan, tổ chức ... cần thuê mượn người lao động.",
-                    "C. người làm việc theo thỏa thuận, được trả lương.",
-                    "D. người chịu sự điều hành, giám sát của người lao động."
-                ],
-                correct: 1
-            },
-            {
-                id: 39,
-                question: "Vai trò nào dưới đây không phải là vai trò của thị trường lao động trong việc định hướng nghề nghiệp thuộc lĩnh vực kĩ thuật, công nghệ?",
-                options: [
-                    "A. Cung cấp thông tin về thị trường lao động thuộc lĩnh vực kĩ thuật, công nghệ.",
-                    "B. Giúp các cơ sở đào tạo định hướng và phát triển chương trình đào tạo cho các ngành nghề và trình độ đào tạo phù hợp.",
-                    "C. Giúp người sử dụng lao động tuyển dụng được người lao động phù hợp và có chất lượng.",
-                    "D. Giúp người học định hướng lựa chọn ngành nghề, cấp học và trình độ đào tạo không phù hợp với năng lực."
-                ],
-                correct: 3
-            },
-            {
-                id: 40,
-                question: "Xu hướng của thị trường lao động ở Việt Nam hiện nay là gì?",
-                options: [
-                    "A. Xu hướng cung và cầu cần bằng.",
-                    "B. Xu hướng không rõ ràng.",
-                    "C. Xu hướng cầu lớn hơn cung.",
-                    "D. Xu hướng cung lớn hơn cầu."
-                ],
-                correct: 3
-            }
+            { id: 1, question: "Khung cấu trúc hệ thống giáo dục quốc dân Việt Nam bao gồm:", options: ["A. giáo dục chính quy, giáo dục nghề nghiệp.", "B. giáo dục chính quy, giáo dục phổ thông.", "C. giáo dục dân lập, giáo dục phổ thông.", "D. giáo dục chính quy, giáo dục thường xuyên."], correct: 3 },
+            { id: 2, question: "Ý nghĩa của việc chọn đúng nghề nghiệp của mỗi người đối với xã hội?", options: ["A. Chọn đúng nghề có cơ hội nhanh chóng có cơ hội việc làm.", "B. Có nghề nghiệp ổn định là cơ hội cá nhân xây dựng được kế hoạch gia đình tương lai một cách chắc chắn.", "C. Chọn nghề đúng sở thích, có tính là nền tảng cá nhân có được sự hài lòng, hạnh phúc với công việc chọn.", "D. Chọn đúng nghề, học đúng ngành là làm đúng chuyên môn, tạo giá trị cho xã hội, có hiểu tình trạng thôi nghỉ hưu."], correct: 3 },
+            { id: 3, question: "Điền từ nào trong Phân luồng trong giáo dục là 'Biện pháp tổ chức hoạt động giáo dục trên cơ sở hiện (1)... trong giáo dục, tạo (2)... học sinh tốt nghiệp (3)..., (4)... tiếp tục học cấp học, trình cao hơn hoặc theo học giáo dục nghề nghiệp hoặc tham gia lao động phù hợp với năng lực.'", options: ["A. (1) hướng nghiệp, (2) điều kiện, (3) tiểu học, (4) trung học cơ sở.", "B. (1) đào tạo, (2) điều kiện, (3) trung học phổ thông, (4) đại học.", "C. (1) đào tạo, (2) điều kiện, (3) trung học cơ sở, (4) trung học phổ thông.", "D. (1) hướng nghiệp, (2) điều kiện, (3) trung học cơ sở, (4) trung học phổ thông."], correct: 3 },
+            { id: 4, question: "Công việc của thợ cơ khí là:", options: ["A. chịu trách nhiệm lên kế hoạch triển khai các hệ thống mới, xử lý lỗi phần mềm và nâng cao hiệu suất của toàn bộ hệ thống.", "B. nghiên cứu, vận hành, theo dõi các hệ thống tự động, dây chuyền sản xuất tự động, phát hiện và sửa chữa cũng như khắc phục những sai sót của hệ thống một cách kịp thời.", "C. phụ trách nghiên cứu, phân tích, thiết kế, triển khai xây dựng và hoàn thiện những vấn đề liên quan đến hệ thống điện.", "D. lắp đặt, chế tạo, vận hành máy móc hoặc sửa chữa, phục hồi, thay thế các bộ phận hư hỏng trên máy móc."], correct: 3 },
+            { id: 5, question: "Tìm kiếm các thông tin liên quan đến thị trường lao động các ngành nghề kỹ thuật, công nghệ bằng những công cụ hỗ trợ nào?", options: ["A. Từ người thân, thầy cô.", "B. Google, Bing, ChatGPT.", "C. Sách, báo, truyện, trò chơi.", "D. Ngoại khóa trường."], correct: 1 },
+            { id: 6, question: "Trình tự các bước xác định thông tin về thị trường lao động trong lĩnh vực kỹ thuật, công nghệ là?", options: ["A. Tiến hành tìm kiếm→Xác định mục tiêu tìm kiếm→Xác định nguồn thông tin→Xác định công cụ tìm kiếm.", "B. Xác định mục tiêu tìm kiếm→Xác định nguồn thông tin→Xác định công cụ tìm kiếm→Tiến hành tìm kiếm.", "C. Xác định nguồn thông tin→Xác định mục tiêu tìm kiếm→Xác định công cụ tìm kiếm→Tiến hành tìm kiếm.", "D. Xác định công cụ tìm kiếm→Xác định mục tiêu tìm kiếm→Xác định nguồn thông tin→Tiến hành tìm kiếm."], correct: 1 },
+            { id: 7, question: "Trình tự các bước trong quy trình lựa chọn nghề là:", options: ["A. Đánh giá bản thân→Ra quyết định→Tìm hiểu thị trường lao động.", "B. Ra quyết định→Tìm hiểu thị trường lao động.", "C. Đánh giá bản thân → Tìm hiểu thị trường lao động → Ra quyết định.", "D. Tìm hiểu thị trường lao động→Ra quyết định."], correct: 2 },
+            { id: 8, question: "Giáo dục phổ thông có hai thời điểm phân luồng là:", options: ["A. sau tốt nghiệp trung học phổ thông và tốt nghiệp đại học.", "B. sau tốt nghiệp trung học cơ sở và tốt nghiệp trung học phổ thông.", "C. sau tốt nghiệp tiểu học và tốt nghiệp trung học cơ sở và tốt nghiệp", "D. sau tốt nghiệp tiểu học và tốt nghiệp trung học phổ thông."], correct: 1 },
+            { id: 9, question: "Phương án khả thi khi muốn theo học nghề sửa chữa, lắp ráp máy tính sau khi tốt nghiệp trung học cơ sở là:", options: ["A. học ngành kỹ thuật sửa chữa, lắp ráp máy tính tại các cơ sở giáo dục nghề nghiệp đào tạo trình cao đẳng.", "B. học ngành kỹ thuật sửa chữa, lắp ráp máy tính tại các cơ sở giáo dục nghề nghiệp có đào tạo trình sơ cấp và trung cấp.", "C. học ngành kỹ thuật sửa chữa, lắp ráp máy tính trong các trường trung học phổ thông.", "D. học ngành kỹ thuật sửa chữa, lắp ráp máy tính tại các trường cao đẳng có đào tạo ngành nghề"], correct: 1 },
+            { id: 10, question: "Yêu cầu về phẩm chất của thợ hàn là?", options: ["A. Trình chuyên môn.", "B. Tự nghiên cứu.", "C. Cẩn thận.", "D. Nhanh nhẹn."], correct: 2 },
+            { id: 11, question: "Tầm quan trọng của nghề nghiệp đối với con người là:", options: ["A. tạo ra sản phẩm tinh thần đáp ứng nhu cầu ngày càng cao của xã hội.", "B. góp phần thúc đẩy phát triển kinh tế, em lại phồn vinh cho xã hội.", "C. tạo môi trường chúng ta phát triển nhân cách, phát huy năng lực, sở trường.", "D. định hướng và phát triển chương trình đào tạo đáp ứng được yêu cầu của xã hội."], correct: 2 },
+            { id: 12, question: "Ý nghĩa của việc chọn nghề nghiệp phù hợp với tính cách nhân cách là:", options: ["A. dễ thích ứng với các yêu cầu công việc và hoàn thành tốt các nhiệm vụ được giao.", "B. có cái nhìn tổng quan về tính cách và sở thích chọn nghề nghiệp phù hợp.", "C. lập kế hoạch rèn luyện phù hợp với bản thân.", "D. đánh giá được năng lực bản thân phù hợp với nghề nghiệp lựa chọn."], correct: 0 },
+            { id: 13, question: "Sau khi tốt nghiệp trung học cơ sở, học sinh có thể lựa chọn cơ sở giáo dục thường xuyên:", options: ["A. vừa học chương trình giáo dục phổ thông, vừa học nghề.", "B. vừa học chương trình giáo dục phổ thông, vừa đi làm.", "C. học chương trình giáo dục phổ thông như các bạn học cùng lớp.", "D. học chương trình nghề là chủ yếu."], correct: 0 },
+            { id: 14, question: "Nghề nào thuộc lĩnh vực kỹ thuật, công nghệ?", options: ["A. Nhân viên tư vấn.", "B. Chuyên viên trang điểm.", "C. Chuyên viên marketing.", "D. Thợ cơ khí."], correct: 3 },
+            { id: 15, question: "Giáo dục mầm non giáo dục tuổi từ:", options: ["A. 3 đến 56 tháng tuổi.", "B. 13 tuổi trở lên.", "C. 6 đến 12 tuổi.", "D. 3 đến 5 tuổi."], correct: 3 },
+            { id: 16, question: "Yêu cầu về năng lực của lập trình viên là gì?", options: ["A. Có thức phân đầu, tự dưỡng đạo được.", "B. Có thể phân phối các loại máy cho các xưởng.", "C. Hiểu biết và vận dụng thành thạo ngôn ngữ lập trình.", "D. Môi trường làm việc năng động, thoải mái."], correct: 2 },
+            { id: 17, question: "Giáo dục phổ thông bao gồm:", options: ["A. giáo dục tiểu học, giáo dục trung học cơ sở và giáo dục trung học phổ thông.", "B. trình sơ cấp, trình trung cấp và trình cao đẳng.", "C. nhà trẻ và mẫu giáo.", "D. mẫu giáo, tiểu học, giáo dục trung học cơ sở và giáo dục trung học phổ thông."], correct: 0 },
+            { id: 18, question: "Để ra quyết định chọn nghề tương lai cho phù hợp, một học sinh cần phải làm gì?", options: ["A. Lựa chọn công việc phù hợp thỏa mãn nhu cầu tuyển dụng lao động của xã hội.", "B. Có kế hoạch học tập, tìm đúng, rèn luyện chuẩn bị cho việc tham gia vào hoạt động nghề nghiệp.", "C. Căn cứ lựa chọn nghề phù hợp với sở thích với bản thân.", "D. Học ngành kỹ thuật sửa chữa, lắp ráp máy tính tại các cơ sở giáo dục nghề nghiệp đào tạo trình cao đẳng."], correct: 1 },
+            { id: 19, question: "Ngành nghề nào sau đây không thuộc lĩnh vực kỹ thuật công nghệ?", options: ["A. điện-điện tử", "B. cơ khí", "C. địa lý", "D. chăm sóc sắc đẹp"], correct: 3 },
+            { id: 20, question: "Công việc nào phù hợp với sở thích sử dụng máy móc, làm công việc sử dụng thao tác tay chân?", options: ["A. Cơ khí.", "B. Nhân viên tư vấn.", "C. Ngân hàng.", "D. Nghiên cứu khoa học."], correct: 0 },
+            { id: 21, question: "Chọn phát biểu sai về đặc điểm môi trường làm việc của các ngành nghề trong lĩnh vực kỹ thuật, công nghệ?", options: ["A. Môi trường làm việc năng động, hiện đại, luôn biến đổi và đầy thử thách.", "B. Vận dụng các nguyên lý vật lý, kỹ thuật, khoa học công nghệ cao.", "C. Đối với lĩnh vực kỹ thuật, môi trường làm việc tiềm ẩn nguy cơ tai nạn cao.", "D. Tiếp xúc nhiều với các thiết bị, công nghệ hiện đại, áp lực công việc lớn."], correct: 1 },
+            { id: 22, question: "Phẩm chất trong các ngành nghề kỹ thuật, công nghệ là:", options: ["A. làm việc cá nhân độc lập.", "B. trình chuyên môn.", "C. tự học, tự nghiên cứu.", "D. cẩn cơ, chăm chỉ, trung thực."], correct: 3 },
+            { id: 23, question: "Các trình độ đào tạo của nghề nghiệp thuộc lĩnh vực kỹ thuật, công nghệ là:", options: ["A. sơ cấp, trung cấp, cao đẳng, đại học.", "B. sơ cấp, trung cấp, cao đẳng, đại học, thạc sĩ và tiến sĩ.", "C. trung cấp, cao đẳng, đại học, thạc sĩ và tiến sĩ.", "D. sơ cấp, trung cấp, thạc sĩ và tiến sĩ."], correct: 1 },
+            { id: 24, question: "Những thông tin mà thị trường lao động cung cấp có vai trò gì đối với các cơ sở đào tạo?", options: ["A. Thỏa mãn nhu cầu tuyển dụng người lao động của các công ty, xưởng.", "B. Định hướng chương trình đào tạo đáp ứng được yêu cầu của xã hội.", "C. Đào tạo ra thế hệ người lao động có trình chuyên môn, năng lực nghiệp vụ tốt.", "D. Định hướng và phát triển chương trình đào tạo đáp ứng được yêu cầu của xã hội."], correct: 3 },
+            { id: 25, question: "Nghề nghiệp là gì?", options: ["A. Nghề nghiệp là một công việc mang lại thu nhập không ổn định.", "B. Nghề nghiệp là tập hợp các công việc gắn bó một thời gian với cá nhân.", "C. Nghề nghiệp là một việc làm có tính chất không ổn định.", "D. Nghề nghiệp là tập hợp các công việc được xã hội công nhận."], correct: 3 },
+            { id: 26, question: "Nội dung nào dưới đây không đúng khi nói về vai trò của việc phân luồng trong hệ thống giáo dục quốc dân?", options: ["A. Góp phần đào tạo nhân lực lao động làm việc, là tiền đề phát triển kinh tế tổ quốc.", "B. Tạo điều kiện cho học sinh lựa chọn nhiều trung học cơ sở, trung học phổ thông tiếp tục học cấp học, trình cao hơn.", "C. Góp phần điều tiết cơ cấu ngành nghề của lực lượng lao động phù hợp với yêu cầu phát triển của tổ quốc.", "D. Tham gia lao động phù hợp với năng lực, điều kiện cơ thể của cá nhân và nhu cầu xã hội."], correct: 1 },
+            { id: 27, question: "Giáo dục thường xuyên dành cho những đối tượng nào?", options: ["A. Người lứa tuổi từ lớp 10 đến lớp 12, có thể học tập, phát triển năng lực chuyên môn, tự tạo việc làm hoặc chuyển đổi ngành, nghề phù hợp.", "B. Người các lứa tuổi, có trình độ, có thể học tập, phát triển năng lực chuyên môn, tự tạo việc làm hoặc chuyển đổi ngành, nghề phù hợp.", "C. Người lứa tuổi từ lớp 6 đến lớp 9, có thể học tập, phát triển năng lực chuyên môn, tự tạo việc làm hoặc chuyển đổi ngành, nghề phù hợp.", "D. Người lứa tuổi từ năm 1 đến năm 2 đại học, có thể học tập, phát triển năng lực chuyên môn, tự tạo việc làm hoặc chuyển đổi ngành, nghề phù hợp."], correct: 1 },
+            { id: 28, question: "Môi trường làm việc của lập trình viên có đặc điểm gì?", options: ["A. Cần biết ít nhất một ngôn ngữ cập nhật xu hướng mới trên thế giới và giao tiếp trí thức nhân loại.", "B. Làm việc với nhiều máy móc, thiết bị hiện đại, luôn được tiếp cận với các thành tựu mới nhất của khoa học công nghệ.", "C. Môi trường làm việc khép kín, ít cơ sở giao tiếp.", "D. Có thể là các nhà máy, phân xưởng, nhà xưởng tư nhân."], correct: 1 },
+            { id: 29, question: "Chọn đáp án sai về ý nghĩa của việc chọn đúng nghề nghiệp đối với cá nhân?", options: ["A. Tăng nguy cơ mất an toàn lao động", "B. Tạo nguồn thu nhập đảm bảo nuôi sống bản thân", "C. Tạo nguồn thu nhập đảm bảo nuôi sống gia đình", "D. Giúp nhanh chóng thích ứng và phát triển nghề nghiệp"], correct: 0 },
+            { id: 30, question: "Trình tiến sĩ được đào tạo trong thời gian bao lâu?", options: ["A. 1-2 năm", "B. 3-4 năm", "C. 2-3 năm", "D. 4-5 năm"], correct: 1 },
+            { id: 31, question: "Trẻ em trong tuổi bao nhiêu có thể tham gia lớp nhà trẻ?", options: ["A. 02 - 12 Tháng", "B. 03 - 24 Tháng", "C. 03 - 36 Tháng", "D. 04 - 36 ThÁNG"], correct: 2 },
+            { id: 32, question: "Nơi làm việc của thợ điện là đâu?", options: ["A. Các văn phòng nghiên cứu", "B. Các khu công nghiệp, khu dân cư...", "C. Các lớp giảng dạy về điện", "D. Tất cả đáp án trên"], correct: 1 },
+            { id: 33, question: "Chọn đáp án sai về nguyên nhân gây ra mất an toàn tại nơi làm việc của người thợ cơ khí:", options: ["A. Thiếu bảo hộ lao động", "B. Không nắm rõ các hướng dẫn sử dụng các loại máy móc", "C. Không có hiểu các biển báo cảnh báo an toàn tại nơi làm việc", "D. Do máy móc hiện đại"], correct: 3 },
+            { id: 34, question: "Đặc điểm của nghề nghiệp?", options: ["A. Có tính chất ổn định", "B. Gắn bó lâu dài", "C. tạo môi trường chúng ta phát triển nhân cách, phát huy năng lực, sở trường.", "D. Có tính chất ổn định, gắn bó lâu dài, đóng góp cho cộng đồng"], correct: 3 },
+            { id: 35, question: "Thị trường lao động là gì?", options: ["A. Thị trường trao đổi hàng hóa sức lao động giữa người lao động và người sử dụng lao động.", "B. Thị trường trao đổi hàng hóa và dịch vụ giữa các doanh nghiệp.", "C. Thị trường trao đổi công việc giữa người lao động và chính phủ.", "D. Thị trường trao đổi hàng hóa giữa các nhà sản xuất."], correct: 0 },
+            { id: 36, question: "Người lao động trong thị trường lao động là:", options: ["A. người chủ đạo và quản lý công việc.", "B. người quản lý thị trường lao động.", "C. người cung cấp sức lao động cho người sử dụng lao động.", "D. người không tham gia vào quá trình sản xuất."], correct: 2 },
+            { id: 37, question: "Yếu tố nào dưới đây ảnh hưởng đến thị trường lao động?", options: ["A. Sự thay đổi về cơ sở hạ tầng.", "B. Nhu cầu lao động.", "C. Sự thay đổi văn hóa xã hội.", "D. Sự tăng trưởng dân số."], correct: 1 },
+            { id: 38, question: "Người sử dụng lao động là:", options: ["A. người chịu sự quản lý, giám sát của người lao động.", "B. doanh nghiệp, cơ quan, tổ chức ... cần thuê mướn người lao động.", "C. người làm việc theo thỏa thuận, được trả lương.", "D. người chịu sự điều hành, giám sát của người lao động."], correct: 1 },
+            { id: 39, question: "Vai trò nào dưới đây không phải là vai trò của thị trường lao động trong việc định hướng nghề nghiệp thuộc lĩnh vực kỹ thuật, công nghệ?", options: ["A. Cung cấp thông tin về thị trường lao động thuộc lĩnh vực kỹ thuật, công nghệ.", "B. Giúp các cơ sở đào tạo định hướng và phát triển chương trình đào tạo cho các ngành nghề và trình độ đào tạo phù hợp.", "C. Giúp người sử dụng lao động tuyển dụng được người lao động phù hợp và có chất lượng.", "D. Giúp người học định hướng lựa chọn ngành nghề, cấp học và trình độ đào tạo không phù hợp với năng lực."], correct: 3 },
+            { id: 40, question: "Xu hướng của thị trường lao động Việt Nam hiện nay là gì?", options: ["A. Xu hướng cung và cầu cân bằng.", "B. Xu hướng không rõ ràng.", "C. Xu hướng cầu lớn hơn cung.", "D. Xu hướng cung lớn hơn cầu."], correct: 3 }
         ];
 
         let studentName = '';
         let startTime = null;
         let timerInterval = null;
         let userAnswers = {};
-        let userIP = '';
+        let userIP = 'Unknown';
         let shuffledQuestions = [];
 
         // Get user IP
@@ -805,38 +472,31 @@
 
         function startQuiz() {
             const nameInput = document.getElementById('studentName').value.trim();
-            
             if (!nameInput) {
                 alert('Vui lòng nhập tên của bạn!');
                 return;
             }
-            
+
             studentName = nameInput;
             document.getElementById('studentNameDisplay').textContent = studentName;
-            
-            // Shuffle questions
-            shuffledQuestions = questions.map((q, originalIndex) => {
-                const shuffledOptions = q.options.map((opt, idx) => ({
-                    text: opt,
-                    originalIndex: idx
-                }));
-                
-                const shuffledOpts = shuffleArray(shuffledOptions);
-                const newCorrectIndex = shuffledOpts.findIndex(opt => opt.originalIndex === q.correct);
+
+            // Shuffle questions and options (content only, not A/B/C/D labels)
+            shuffledQuestions = questions.map(q => {
+                const shuffledOptions = shuffleArray([...q.options]);
+                const correctAnswer = q.options[q.correct];
+                const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
                 
                 return {
                     ...q,
-                    originalIndex: originalIndex,
-                    options: shuffledOpts.map(opt => opt.text),
+                    options: shuffledOptions,
                     correct: newCorrectIndex
                 };
             });
             
             shuffledQuestions = shuffleArray(shuffledQuestions);
-            
+
             document.getElementById('welcomeScreen').classList.remove('active');
             document.getElementById('quizScreen').classList.add('active');
-            
             renderQuestions();
             startTimer();
         }
@@ -844,11 +504,11 @@
         function renderQuestions() {
             const container = document.getElementById('questionsContainer');
             container.innerHTML = '';
-            
+
             shuffledQuestions.forEach((q, index) => {
                 const questionCard = document.createElement('div');
                 questionCard.className = 'question-card';
-                
+
                 const questionHTML = `
                     <div class="question-header">Câu ${index + 1}: ${q.question}</div>
                     <div class="options">
@@ -860,7 +520,7 @@
                         `).join('')}
                     </div>
                 `;
-                
+
                 questionCard.innerHTML = questionHTML;
                 container.appendChild(questionCard);
             });
@@ -868,12 +528,12 @@
 
         function selectOption(questionIndex, optionIndex) {
             userAnswers[questionIndex] = optionIndex;
-            
+
             const options = document.querySelectorAll(`input[name="q${questionIndex}"]`);
-            const optionDivs = document.querySelectorAll(`input[name="q${questionIndex}"]`).forEach(input => {
+            options.forEach(input => {
                 input.parentElement.classList.remove('selected');
             });
-            
+
             const selectedOption = document.getElementById(`q${questionIndex}_${optionIndex}`);
             selectedOption.checked = true;
             selectedOption.parentElement.classList.add('selected');
@@ -881,17 +541,16 @@
 
         function startTimer() {
             startTime = Date.now();
-            let timeRemaining = 30 * 60; // 30 minutes in seconds
-            
+            let timeRemaining = 60 * 60; // 60 minutes in seconds
+
             timerInterval = setInterval(() => {
                 timeRemaining--;
-                
                 const minutes = Math.floor(timeRemaining / 60);
                 const seconds = timeRemaining % 60;
-                
+
                 document.getElementById('timer').textContent = 
                     `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                
+
                 if (timeRemaining <= 0) {
                     clearInterval(timerInterval);
                     submitQuiz();
@@ -901,26 +560,63 @@
 
         function submitQuiz() {
             clearInterval(timerInterval);
-            
+
             let score = 0;
             shuffledQuestions.forEach((q, index) => {
                 if (userAnswers[index] === q.correct) {
                     score++;
                 }
             });
-            
+
             const endTime = Date.now();
             const timeTaken = Math.floor((endTime - startTime) / 1000);
             const minutes = Math.floor(timeTaken / 60);
             const seconds = timeTaken % 60;
             const timeDisplay = `${minutes} phút ${seconds} giây`;
-            
+
             document.getElementById('quizScreen').classList.remove('active');
             document.getElementById('resultScreen').classList.add('active');
             document.getElementById('scoreDisplay').textContent = `${score}/40`;
             document.getElementById('timeTaken').textContent = timeDisplay;
-            
+
+            showReview(score, shuffledQuestions, userAnswers);
             saveToFirebase(score, timeTaken);
+        }
+
+        function showReview(score, questions, answers) {
+            const reviewSection = document.getElementById('reviewSection');
+            let reviewHTML = '<h2>📋 Xem lại đáp án</h2>';
+
+            questions.forEach((q, index) => {
+                const userAnswer = answers[index];
+                const isCorrect = userAnswer === q.correct;
+                const statusClass = isCorrect ? 'correct' : 'wrong';
+                const statusText = isCorrect ? '✅ Đúng' : '❌ Sai';
+
+                reviewHTML += `
+                    <div class="review-question ${statusClass}">
+                        <h3>Câu ${index + 1}: ${q.question}</h3>
+                        <p class="review-status ${statusClass}">${statusText}</p>
+                        <div class="options">
+                            ${q.options.map((option, optIndex) => {
+                                let optionClass = '';
+                                if (optIndex === q.correct) {
+                                    optionClass = 'correct';
+                                } else if (optIndex === userAnswer && !isCorrect) {
+                                    optionClass = 'incorrect';
+                                }
+                                
+                                const prefix = optIndex === q.correct ? '✓ ' : optIndex === userAnswer && !isCorrect ? '✗ ' : '';
+                                
+                                return `<div class="option ${optionClass}">${prefix}${option}</div>`;
+                            }).join('')}
+                        </div>
+                        ${!isCorrect ? `<p style="color: var(--color-text-secondary); margin-top: 10px;"><strong>Đáp án đúng:</strong> ${q.options[q.correct]}</p>` : ''}
+                    </div>
+                `;
+            });
+
+            reviewSection.innerHTML = reviewHTML;
         }
 
         function saveToFirebase(score, timeTaken) {
@@ -931,7 +627,7 @@
                 ip: userIP,
                 timestamp: Date.now()
             };
-            
+
             fetch(`${FIREBASE_URL}/results.json`, {
                 method: 'POST',
                 headers: {
@@ -946,7 +642,7 @@
             .catch(error => {
                 console.error('Error saving to Firebase:', error);
                 document.getElementById('leaderboardContainer').innerHTML = 
-                    '<p style="color: var(--color-error);">Không thể tải bảng xếp hạng</p>';
+                    '<p style="color: var(--color-error)">Không thể tải bảng xếp hạng</p>';
             });
         }
 
@@ -955,29 +651,29 @@
                 .then(response => response.json())
                 .then(data => {
                     if (!data) {
-                        document.getElementById('leaderboardContainer').innerHTML = 
-                            '<p>Chưa có dữ liệu</p>';
+                        document.getElementById('leaderboardContainer').innerHTML = '<p>Chưa có dữ liệu</p>';
                         return;
                     }
-                    
+
                     const results = Object.values(data);
+                    
+                    // Sort by score (descending), then by time (ascending)
                     results.sort((a, b) => {
                         if (b.score !== a.score) {
                             return b.score - a.score;
                         }
                         return a.time - b.time;
                     });
-                    
+
                     const top10 = results.slice(0, 10);
-                    
                     let leaderboardHTML = '';
+
                     top10.forEach((result, index) => {
                         const minutes = Math.floor(result.time / 60);
                         const seconds = result.time % 60;
                         const timeDisplay = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-                        
                         const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : '';
-                        
+
                         leaderboardHTML += `
                             <div class="leaderboard-item">
                                 <div class="rank ${rankClass}">#${index + 1}</div>
@@ -987,13 +683,13 @@
                             </div>
                         `;
                     });
-                    
+
                     document.getElementById('leaderboardContainer').innerHTML = leaderboardHTML;
                 })
                 .catch(error => {
                     console.error('Error loading leaderboard:', error);
                     document.getElementById('leaderboardContainer').innerHTML = 
-                        '<p style="color: var(--color-error);">Không thể tải bảng xếp hạng</p>';
+                        '<p style="color: var(--color-error)">Không thể tải bảng xếp hạng</p>';
                 });
         }
     </script>
